@@ -9,10 +9,9 @@
 const canvas = require('canvas-wrapper');
 const asyncLib = require('async');
 
-
-/* Check against the module name, whether it's 'Lesson xx' or 'Lxx' */
-var regex1 = /^(L0\d$)|(L1[0-4])$/gi;
-var lessonList = 'Lesson';
+/* Check against the module name, whether it's 'Lesson xx', 'Lxx:', 'Week xx', or 'Wxx:' */
+var regex1 = /(W|L)((0\d)|(1[0-4])):/gi;
+var regex2 = /(Week |Lesson )((0\d)|(1[0-4]))/gi
 
 /* View available course object functions */
 // https://github.com/byuitechops/d2l-to-canvas-conversion-tool/blob/master/documentation/classFunctions.md
@@ -24,9 +23,8 @@ module.exports = (course, stepCallback) => {
      * Parameters: module_list, functionCallback()
      ********************************************/
     function makeDiscussion(module, functionCallback) {
-        /* Swap module.name with lessonList */
-        /* Only create discussion boards if the module name includes 'Lesson xx' or 'Lxx' */
-        if (regex1.test(module.name) || module.name.includes(lessonList)) {
+        /* Only create discussion boards if the module name includes 'Lesson xx', 'Lxx', 'Week xx', or 'Wxx:' */
+        if (regex1.test(module.name) || regex2.test(module.name)) {
             /* Make a discussion board */
             canvas.post(`/api/v1/courses/${course.info.canvasOU}/discussion_topics`, {
                     'title': 'Notes from Instructor',
@@ -36,22 +34,23 @@ module.exports = (course, stepCallback) => {
                 },
                 (postErr, discussion) => {
                     if (postErr) {
-//                      console.log(`1`);
-//                      handle errs in the functionCallback
                         functionCallback(postErr);
                         return;
                     }
-//                  console.log(`2`);
                     course.success(`lessons-create-discussions`, `Successfully created the Discussion Topic in module ${module.id}`);
 
+                    /* Create a module item and link it to the new discussion board */
                     makeModuleItem(module, discussion, functionCallback);
                 });
+        } else {
+            functionCallback(null);
         }
     }
 
     /********************************************
      * makeModuleItem()
-     * Parameters: functionCallback()
+     * Parameters: module, discussion, 
+     *             makeModuleItemCallback()
      ********************************************/
     function makeModuleItem(module, discussion, makeModuleItemCallback) {
         /* Create a module item and link it to the new discussion board */
@@ -70,19 +69,19 @@ module.exports = (course, stepCallback) => {
                     return;
                 }
                 course.success(`lessons-create-discussions`, `Created module item \'Notes from Instructor\'`)
-              console.log(`3`);
-                makeModuleItemCallback();
+                makeModuleItemCallback(null);
             });
     }
 
     /* Create the module report so that we can access it later as needed.
     This MUST be done at the beginning of each child module. */
     course.addModuleReport('lessons-create-discussions');
-    
+
+    /**********************************************
+     * 				START HERE					  *
+     **********************************************/
+    /* Large setTimeout needed in order to retrieve all modules. Does not work otherwise. */
     setTimeout(() => {
-        /**********************************************
-         * 				START HERE					  *
-         **********************************************/
         canvas.get(`/api/v1/courses/${course.info.canvasOU}/modules`, (getErr, module_list) => {
             if (getErr) {
                 course.throwErr(`lessons-create-discussions`, getErr);
@@ -90,12 +89,13 @@ module.exports = (course, stepCallback) => {
             } else {
                 course.success(`lessons-create-discussions`, `Successfully retrieved the modules.`);
 
+                /* Loop through each module in module_list */
                 asyncLib.each(module_list, makeDiscussion, (eachErr) => {
-                    console.log('test');
                     if (eachErr) {
                         course.throwErr(`lessons-create-discussions`, eachErr);
                         return;
                     }
+                    /* Finished */
                     course.success(`lessons-create-discussions`, `Successfully created \'Notes from Instructor\' Discussion boards and their module items`);
                     stepCallback(null, course);
                 });
