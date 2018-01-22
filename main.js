@@ -10,9 +10,10 @@ const canvas = require('canvas-wrapper');
 const asyncLib = require('async');
 
 /* Check against the module name, whether it's 'Lesson xx', 'Lxx:', 'Week xx', or 'Wxx:' */
-var regex1 = /(W|L)((0\d)|(1[0-4])):/gi;
-var regex2 = /(Week |Lesson )((0\d)|(1[0-4]))/gi
-
+//var regex1 = /(W|L)((0?\d\D)|(1[0-4]))\s*|:/gi;
+//var regex2 = /(Week|Lesson)\s*((1[0-4])|(0?\d\D))/gi;
+var weekNum = ['W01', 'W02', 'W03', 'W04', 'W05', 'W06', 'W07', 'W08', 'W09', 'W10', 'W11', 'W12', 'W13', 'W14'];
+var counter = 0;
 /* View available course object functions */
 // https://github.com/byuitechops/d2l-to-canvas-conversion-tool/blob/master/documentation/classFunctions.md
 
@@ -24,10 +25,15 @@ module.exports = (course, stepCallback) => {
      ********************************************/
     function makeDiscussion(module, functionCallback) {
         /* Only create discussion boards if the module name includes 'Lesson xx', 'Lxx', 'Week xx', or 'Wxx:' */
-        if (regex1.test(module.name) || regex2.test(module.name)) {
+        console.log(`${module.name}`);
+        if (/(Week|Lesson)\s*\d+/gi.test(module.name)) {
+            console.log(`test passed`);
+            console.log(`counter: ${counter}`);
+            counter++;
+            console.log(`counter++: ${counter}`);
             /* Make a discussion board */
             canvas.post(`/api/v1/courses/${course.info.canvasOU}/discussion_topics`, {
-                    'title': 'Notes from Instructor',
+                    'title': `${weekNum[counter]}: Notes from Instructor`,
                     'discussion_type': 'threaded',
                     'allow_rating': true,
                     'sort_by_rating': true,
@@ -43,6 +49,7 @@ module.exports = (course, stepCallback) => {
                     makeModuleItem(module, discussion, functionCallback);
                 });
         } else {
+            console.log('test failed');
             functionCallback(null);
         }
     }
@@ -56,7 +63,7 @@ module.exports = (course, stepCallback) => {
         /* Create a module item and link it to the new discussion board */
         canvas.post(`/api/v1/courses/${course.info.canvasOU}/modules/${module.id}/items`, {
                 'module_item': {
-                    'title': 'Notes from Instructor',
+                    'title': `${weekNum[counter]}: Notes from Instructor`,
                     'type': 'Discussion',
                     'content_id': discussion.id,
                     'position': 1,
@@ -68,7 +75,8 @@ module.exports = (course, stepCallback) => {
                     makeModuleItemCallback(postItemErr);
                     return;
                 }
-                course.success(`lessons-create-discussions`, `Created module item \'Notes from Instructor\'`)
+                course.success(`lessons-create-discussions`, `Created module item \'Notes from Instructor\'`);
+
                 makeModuleItemCallback(null);
             });
     }
@@ -81,13 +89,19 @@ module.exports = (course, stepCallback) => {
      * 				START HERE					  *
      **********************************************/
     /* Large setTimeout needed in order to retrieve all modules. Does not work otherwise. */
+    if (course.settings.online == false) {
+        course.success(`lessons-create-discussions`, `Not an online course, this child module should not run`)
+        stepCallback(null, course);
+        return;
+    }
     setTimeout(() => {
         canvas.get(`/api/v1/courses/${course.info.canvasOU}/modules`, (getErr, module_list) => {
             if (getErr) {
                 course.throwErr(`lessons-create-discussions`, getErr);
                 return;
             } else {
-                course.success(`lessons-create-discussions`, `Successfully retrieved the modules.`);
+                console.log(`modules gotten ${module_list.length}`);
+                course.success(`lessons-create-discussions`, `Successfully retrieved the modules`);
 
                 /* Loop through each module in module_list */
                 asyncLib.each(module_list, makeDiscussion, (eachErr) => {
@@ -101,5 +115,5 @@ module.exports = (course, stepCallback) => {
                 });
             }
         });
-    }, 20000);
+    }, 25000);
 }
