@@ -19,7 +19,7 @@ module.exports = (course, stepCallback) => {
 
 	/********************************************
 	 * makeDiscussion()
-	 * Parameters: module_list, functionCallback()
+	 * Parameters: module, makeDiscussionCallback()
 	 ********************************************/
 	function makeDiscussion(module, makeDiscussionCallback) {
 		/* Only create discussion boards if the module name includes 'Lesson x' or 'Week x' */
@@ -30,6 +30,7 @@ module.exports = (course, stepCallback) => {
 			/* Get the week number */
 			titleArray.forEach((item, index) => {
 				if (item == 'Week' || item == 'Lesson') {
+					/* Replace each non-digit with nothing */
 					weekNum = titleArray[index + 1].replace(/\D+/g, '');
 
 					if (weekNum.length == 1) {
@@ -131,33 +132,30 @@ module.exports = (course, stepCallback) => {
 	 **********************************************/
 	/* Only run child module if it is an online course. Notes from Instructor are only for online classes */
 	if (course.settings.online == false) {
-		//		course.throwErr()
 		course.warning(`Not an online course, this child module should not run.`)
 		stepCallback(null, course);
 		return;
 	}
 
-	setTimeout(() => {
-		/* Get the module_list */
-		canvas.get(`/api/v1/courses/${course.info.canvasOU}/modules`, (getErr, module_list) => {
-			if (getErr) {
-				course.error(getErr);
-				return;
-			} else {
-				course.message(`Successfully retrieved ${module_list.length} modules.`);
+	/* Get the moduleList */
+	canvas.getModules(course.info.canvasOU, (getErr, moduleList) => {
+		if (getErr) {
+			course.error(getErr);
+			return;
+		} else {
+			course.message(`Successfully retrieved ${moduleList.length} modules.`);
 
-				/* Loop through each module in module_list */
-				asyncLib.eachSeries(module_list, waterfallFunction, (eachErr) => {
-					if (eachErr) {
-						course.error(eachErr);
-						return;
-					}
+			/* Loop through each module in moduleList */
+			asyncLib.eachSeries(moduleList, waterfallFunction, (eachErr) => {
+				if (eachErr) {
+					course.error(eachErr);
+					return;
+				}
 
-					/* Finished */
-					course.message(`Successfully completed lessons-create-discussions`);
-					stepCallback(null, course);
-				});
-			}
-		});
-	}, 25000);
+				/* Finished */
+				course.message(`Successfully completed lessons-create-discussions`);
+				stepCallback(null, course);
+			});
+		}
+	});
 }
