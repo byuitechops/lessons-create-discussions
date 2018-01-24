@@ -4,45 +4,31 @@
 const tap = require('tap');
 
 function g1Tests(course, callback) {
-    // Tap tests for Gauntlet 1 go here
-    tap.pass('Success! Wheee! 1');
-    // tap.fail('YOLO');
-    callback(null, course);
+	var created = course.logs.filter((log) => {
+		return log.title == `Discussion Topics Created in Canvas`;
+	});
+
+	tap.equal(created.length, 2);
+	tap.equal(created[0].data['Discussion Topic Name'], 'W01: Notes from Instructor');
+	tap.equal(created[1].data['Discussion Topic Name'], 'W02: Notes from Instructor');
+	tap.equal(created[0].data['Module Name'], 'Lesson 01: Child 17');
+	tap.equal(created[1].data['Module Name'], 'Week 2: Child 18');
+
+	var modulesMade = course.logs.filter((log) => {
+		return log.title == 'Created module item \'Notes from Instructor\'';
+	});
+
+	tap.equal(modulesMade.length, 2);
+	tap.equal(modulesMade[0].data[`Module Item Name`], `W01: Notes from Instructor`);
+	tap.equal(modulesMade[1].data[`Module Item Name`], `W02: Notes from Instructor`);
+
+	callback(null, course);
 }
 
-function g2Tests(course, callback) {
-    // Tap tests for Gauntlet 2 go here
-    tap.pass('Success! Wheee! 2');
-    callback(null, course);
-}
-
-function g3Tests(course, callback) {
-    // Tap tests for Gauntlet 3 go here
-    tap.pass('Success! Wheee! 3');
-    callback(null, course);
-}
-
-function g4Tests(course, callback) {
-    // Tap tests for Gauntlet 4 go here
-    tap.pass('Success! Wheee! 4');
-    callback(null, course);
-}
 
 module.exports = [
-        {
-            gauntlet: 1,
-            tests: g1Tests
-        },
-        {
-            gauntlet: 2,
-            tests: g2Tests
-        },
-        {
-            gauntlet: 3,
-            tests: g3Tests
-        },
-        {
-            gauntlet: 4,
-            tests: g4Tests
-        },
+	{
+		gauntlet: 1,
+		tests: g1Tests
+        }
 ];
