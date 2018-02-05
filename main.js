@@ -55,7 +55,7 @@ module.exports = (course, stepCallback) => {
 		}
 
 		/* Only create discussion boards if the module name includes 'Lesson x' or 'Week x' */
-		if (/(Week|Lesson)\s*\d+/gi.test(module.name)) {
+		if (/(Week|Lesson)\s*(\d[0-4]+|0?\d\D )/gi.test(module.name)) {
 			var moduleTitle = module.name;
 			var titleArray = moduleTitle.split(" ");
 
