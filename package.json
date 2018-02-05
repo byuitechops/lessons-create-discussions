@@ -1,7 +1,7 @@
 {
 	"name": "notes-from-instructor",
 	"version": "1.0.0",
-	"description": "Put your child module's description here",
+	"description": "All online courses are meant to have a 'Notes from Instructor' discussion topic in each week's module. This child module addresses this issue and creates one in each week's module if one does not already exist.",
 	"main": "main.js",
 	"dependencies": {
 		"canvas-wrapper": "git+https://github.com/byuitechops/Canvas-wrapper.git"
@@ -17,13 +17,13 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/byuitechops/child-template.git"
+		"url": "git+https://github.com/byuitechops/notes-from-instructor.git"
 	},
 	"author": "Seth Childers",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/byuitechops/child-template/issues"
+		"url": "https://github.com/byuitechops/notes-from-instructor/issues"
 	},
-	"homepage": "https://github.com/byuitechops/child-template#readme",
+	"homepage": "https://github.com/byuitechops/notes-from-instructor#readme",
 	"childType": "postImport"
 }
