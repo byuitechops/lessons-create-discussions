@@ -1,16 +1,34 @@
 # Notes from Instructor
-### Package Name: notes-from-instructor
-### Child Type: post import
+### *Package Name*: notes-from-instructor
+### *Child Type*: post import
+### *Platform*: online
+### *Required*: Recommended
 
-This child module is built to be used by the Brigham Young University - Idaho D2L to Canvas Conversion Tool. It utilizes the standard `module.exports => (course, stepCallback)` signature and uses the Conversion Tool's standard logging functions.
+This child module is built to be used by the Brigham Young University - Idaho D2L to Canvas Conversion Tool. It utilizes the standard `module.exports => (course, stepCallback)` signature and uses the Conversion Tool's standard logging functions. You can view extended documentation [Here](https://github.com/byuitechops/d2l-to-canvas-conversion-tool/tree/master/documentation).
 
 ## Purpose
 
 All online courses are meant to have a 'Notes from Instructor' discussion topic in each week's module. This child module addresses this issue and creates one in each week's module if one does not already exist.
 
-## Process
+## How to Install
 
-Describe in steps how the module accomplishes its goals.
+```
+npm install notes-from-instructor
+```
+
+## Run Requirements
+
+None
+
+## Options
+
+None
+
+## Outputs
+
+None
+
+## Process
 
 1. Check to see if the current course is an online course or not
 	- If it is an online course, run the module
@@ -22,3 +40,13 @@ Describe in steps how the module accomplishes its goals.
 4. Make the discussion topic if the module name is 'Week x' or 'Lesson x'
 5. Make a module item and link it to the discussion topic
 6. Set the module item to 'published'
+
+## Log Categories
+
+- Discussion Topics Created in Canvas
+- Created Module Item 'Notes from Instructor'
+- Published Module Item 'Notes from Instructor'
+
+## Requirements
+
+1. Each week's module will have a Notes from Instructor discussion topic
