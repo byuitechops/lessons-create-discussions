@@ -115,7 +115,7 @@ module.exports = (course, stepCallback) => {
                 return;
             }
 
-            course.log('Discussion Topics Created in Canvas', {
+            course.log('Created Discussion Topics', {
                 'Module ID': module.id,
                 'Discussion Topic Name': newDiscussionTopic.title,
                 'Discussion Topic ID': newDiscussionTopic.id,
@@ -157,7 +157,7 @@ module.exports = (course, stepCallback) => {
                 makeModuleItemCallback(postItemErr);
                 return;
             }
-            course.log('Created Module Item \'Notes from Instructor\'', {
+            course.log('Created Module Item', {
                 'Module ID': moduleItem.id,
                 'Module Item Name': moduleItem.title,
             });
@@ -190,10 +190,6 @@ module.exports = (course, stepCallback) => {
                 publishModuleItemCallback(putItemErr);
                 return;
             }
-            course.log('Published Module Item \'Notes from Instructor\'', {
-                'Module ID': updatedModuleItem.id,
-                'Module Item Name': updatedModuleItem.title,
-            });
 
             /* Finished with no errors */
             publishModuleItemCallback(null);
